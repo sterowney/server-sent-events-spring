@@ -1,0 +1,73 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>Server Sent Events and Web Sockets</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+<h1>Server Sent Events and Web Sockets</h1>
+<table id="events-table" border="1">
+    <thead>
+        <tr>
+            <th>Timestamps</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+</body>
+<script type="text/javascript">
+
+    function initializeSSE() {
+      const eventSource = new EventSource('/view-messages-sse');
+
+      eventSource.onmessage = e => {
+        const date = e.data;
+        const table = document.getElementById('events-table');
+        const tBody = table.tBodies[0];
+        const tr = tBody.insertRow(-1);
+        const td = document.createElement("td");
+        const txt = document.createTextNode(date);
+
+        td.appendChild(txt);
+        tr.appendChild(td);
+        tBody.insertBefore(tr, tBody.childNodes[0]);
+      };
+    }
+
+    function WebSocketTest() {
+
+        if ("WebSocket" in window) {
+           // Let us open a web socket
+           var ws = new WebSocket("ws://localhost:8080/chat");
+
+           ws.onopen = function() {
+
+              // Web Socket is connected, send data using send()
+              ws.send("Message to send");
+              alert("Message is sent...");
+           };
+
+           ws.onmessage = function (evt) {
+              var received_msg = evt.data;
+              alert("Message is received...");
+           };
+
+           ws.onclose = function() {
+
+              // websocket is closed.
+              alert("Connection is closed...");
+           };
+        } else {
+
+           // The browser doesn't support WebSocket
+           alert("WebSocket NOT supported by your Browser!");
+        }
+     }
+
+window.onload = function() {
+    WebSocketTest();
+    initializeSSE();
+}
+
+</script>
+</html>
